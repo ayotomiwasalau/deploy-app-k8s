@@ -120,7 +120,7 @@ jobs:
           kustomize-version: 'v5.2.1'
       - name: Update image in Kubernetes manifests
         env:
-          IMAGE_URI: ${{ needs.docker.outputs.image-uri }}
+          IMAGE_URI: ${{ needs.docker.outputs.image_uri }}
         run: |
           echo "IMAGE_URI: $IMAGE_URI"
           cd k8s && kustomize edit set image frontend=$IMAGE_URI
