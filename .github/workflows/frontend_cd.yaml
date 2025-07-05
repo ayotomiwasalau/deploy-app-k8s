@@ -68,7 +68,7 @@ jobs:
       run:
         working-directory: starter/frontend
     outputs:
-      image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
+      dck_image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -94,9 +94,8 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Export image URI
         id: export-image-uri
-        run: |
-          image_uri="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
-          echo "$image_uri" >> $GITHUB_OUTPUT
+        run: |          
+          echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   deploy:
     runs-on: ubuntu-latest
@@ -123,11 +122,11 @@ jobs:
         with:
           kustomize-version: 'v5.2.1'
       - name: Update image in Kubernetes manifests
-        # env:
-        #   IMAGE_URI: ${{ needs.docker.outputs.image_uri }}
+        env:
+          IMAGE_URI: ${{ needs.docker.outputs.dck_image_uri }}
         run: |
-          echo "IMAGE_URI: ${{ needs.docker.outputs.image_uri }}"
-          cd k8s && kustomize edit set image frontend=${{ needs.docker.outputs.image_uri }}
+          echo "IMAGE_URI: $IMAGE_URI"
+          cd k8s && kustomize edit set image frontend=$IMAGE_URI
       - name: Apply Kubernetes manifests
         run: |
           cd k8s && kustomize build | kubectl apply -f -
