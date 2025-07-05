@@ -92,7 +92,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Export image URI
         id: export-image-uri
-        run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+        uses: aws-actions/setup-kubectl@v1
         with:
           version: 'latest'
       - name: Update image in Kubernetes manifests
@@ -120,9 +120,5 @@ jobs:
         run: |
           cd k8s && kubectl kustomize edit set image frontend=$IMAGE_URI
       - name: Apply Kubernetes manifests
-        env:
-          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
         run: |
-          echo "$KUBECONFIG_DATA" | base64 --decode > kubeconfig
-          export KUBECONFIG=$(pwd)/kubeconfig
-          kubectl apply -f k8s/
+          cd k8s && kustomize build | kubectl apply -f -
