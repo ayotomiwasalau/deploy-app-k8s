@@ -67,6 +67,8 @@ jobs:
     defaults:
       run:
         working-directory: starter/frontend
+    outputs:
+      image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -90,8 +92,6 @@ jobs:
         run: |
           docker build --build-arg=REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      - outputs:
-        image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
       - name: Export image URI
         id: export-image-uri
         run: echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
