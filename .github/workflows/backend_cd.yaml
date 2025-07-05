@@ -25,12 +25,10 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          cd starter/backend
           pip install pipenv
           pipenv install --dev
       - name: Run Flake8
         run: |
-          cd starter/backend
           pipenv run lint
 
   test:
@@ -47,12 +45,10 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          cd starter/backend
           pip install pipenv
           pipenv install --dev
       - name: Run tests
         run: |
-          cd starter/backend
           pipenv run test
 
   build:
