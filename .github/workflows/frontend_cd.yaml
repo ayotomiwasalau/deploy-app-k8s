@@ -122,6 +122,7 @@ jobs:
         env:
           IMAGE_URI: ${{ needs.docker.outputs.export-image-uri.IMAGE_URI }}
         run: |
+          echo "IMAGE_URI: $IMAGE_URI"
           cd k8s && kustomize edit set image frontend=$IMAGE_URI
       - name: Apply Kubernetes manifests
         run: |
