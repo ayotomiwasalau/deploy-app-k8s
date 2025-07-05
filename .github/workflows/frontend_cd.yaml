@@ -92,7 +92,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Export image URI
         id: export-image-uri
-        run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
@@ -120,7 +120,7 @@ jobs:
           kustomize-version: 'v5.2.1'
       - name: Update image in Kubernetes manifests
         env:
-          IMAGE_URI: ${{ needs.docker.outputs.export-image-uri }}
+          IMAGE_URI: ${{ needs.docker.outputs.image-uri }}
         run: |
           echo "IMAGE_URI: $IMAGE_URI"
           cd k8s && kustomize edit set image frontend=$IMAGE_URI
