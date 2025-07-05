@@ -102,6 +102,10 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
+      - name: Set up kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: 'v5.2.1'
       - name: Update image in Kubernetes manifests
         env:
           IMAGE_URI: ${{ needs.docker.outputs.export-image-uri.IMAGE_URI }}
