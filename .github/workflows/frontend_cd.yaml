@@ -95,7 +95,7 @@ jobs:
       - name: Export image URI
         id: export-image-uri
         run: |
-          image_uri=${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}
+          image_uri="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
           echo "$image_uri" >> $GITHUB_OUTPUT
 
   deploy:
