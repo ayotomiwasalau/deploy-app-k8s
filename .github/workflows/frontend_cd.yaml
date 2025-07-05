@@ -111,7 +111,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up kubectl
-        uses: aws-actions/setup-kubectl@v1
+        uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
       - name: Update image in Kubernetes manifests
