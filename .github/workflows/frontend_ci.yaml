@@ -11,6 +11,9 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: starter/frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,17 +22,19 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
         run: |
-          cd starter/frontend
           npm ci
       - name: Run ESLint
         run: |
-          cd starter/frontend
           npm run lint
 
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: starter/frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,17 +43,19 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
         run: |
-          cd starter/frontend
           npm ci
       - name: Run tests
         run: |
-          cd starter/frontend
           npm run test 
 
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: starter/frontend
     needs: [lint, test]
     steps:
       - name: Checkout code
@@ -58,15 +65,13 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
         run: |
-          cd starter/frontend
           npm ci
       - name: Run tests
         run: |
-          cd starter/frontend
           npm run test
       - name: Build Docker image
         run: |
-          cd starter/frontend
           docker build -t frontend-app .
