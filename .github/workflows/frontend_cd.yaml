@@ -68,7 +68,7 @@ jobs:
       run:
         working-directory: starter/frontend
     outputs:
-      dck_image_uri: ${{ steps.export-image-uri.outputs.IMAGE_URI }}
+      dck_image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -98,9 +98,10 @@ jobs:
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
           echo "IMAGE_URI: $IMAGE_URI"
           echo "Setting output..."
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
+          echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
           echo "Output set. Checking..."
           cat $GITHUB_OUTPUT
+          echo "Step output should be: ${{ steps.export-image-uri.outputs.image_uri }}"
 
   deploy:
     runs-on: ubuntu-latest
