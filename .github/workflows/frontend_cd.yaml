@@ -97,8 +97,7 @@ jobs:
         run: |          
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
           echo "IMAGE_URI: $IMAGE_URI"
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
-          echo "::set-output name=IMAGE_URI::$IMAGE_URI"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_STATE
 
   deploy:
     runs-on: ubuntu-latest
