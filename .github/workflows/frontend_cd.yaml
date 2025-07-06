@@ -121,7 +121,7 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr-extract
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Update image in Kubernetes manifests #flabbergasted button
+      - name: Update image in Kubernetes manifests 
         run: |
           DOCKER_IMAGE_URI=${{ steps.login-ecr-extract.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}
           echo "IMAGE_URI: $DOCKER_IMAGE_URI"
@@ -129,5 +129,5 @@ jobs:
           
       - name: Apply Kubernetes manifests
         run: |
-          cd k8s && kustomize build | kubectl apply -f - --validate=false
+          cd k8s && kustomize build | kubectl apply -f -
       

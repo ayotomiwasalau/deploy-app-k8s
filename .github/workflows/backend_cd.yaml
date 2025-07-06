@@ -57,8 +57,6 @@ jobs:
     defaults:
       run:
         working-directory: starter/backend
-    outputs:
-      image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -81,9 +79,7 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      - name: Export image URI
-        id: export-image-uri
-        run: echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ vars.BE_ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
 
   deploy:
     runs-on: ubuntu-latest
@@ -104,15 +100,22 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ vars.EKS_CLUSTER_NAME }}
       - name: Set up kustomize
         uses: imranismail/setup-kustomize@v1
         with:
           kustomize-version: 'v5.2.1'
-      - name: Update image in Kubernetes manifests
-        env:
-          IMAGE_URI: ${{ needs.build.outputs.image_uri }}
+      - name: Log in to Amazon ECR
+        id: login-ecr-extract
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Update image in Kubernetes manifests 
         run: |
-          cd k8s && kustomize edit set image backend=$IMAGE_URI
+          DOCKER_IMAGE_URI=${{ steps.login-ecr-extract.outputs.registry }}/${{ vars.BE_ECR_REPOSITORY }}:${{ github.sha }}
+          echo "IMAGE_URI: $DOCKER_IMAGE_URI"
+          cd k8s && kustomize edit set image backend=$DOCKER_IMAGE_URI 
+          
       - name: Apply Kubernetes manifests
         run: |
           cd k8s && kustomize build | kubectl apply -f -
