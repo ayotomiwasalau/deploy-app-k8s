@@ -101,7 +101,8 @@ jobs:
           echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
           echo "Output set. Checking..."
           cat $GITHUB_OUTPUT
-          echo "Step output should be: ${{ steps.export-image-uri.outputs.image_uri }}"
+      - name: Show image_uri output
+        run: echo "Step output is: ${{ steps.export-image-uri.outputs.image_uri }}"
 
   deploy:
     runs-on: ubuntu-latest
