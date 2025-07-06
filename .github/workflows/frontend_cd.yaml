@@ -67,8 +67,6 @@ jobs:
     defaults:
       run:
         working-directory: starter/frontend
-    outputs:
-      dck_image_uri: ${{ steps.export-image-uri.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -92,23 +90,11 @@ jobs:
         run: |
           docker build --build-arg=REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      - name: Export image URI
-        id: export-image-uri
-        run: |          
-          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
-          echo "IMAGE_URI: $IMAGE_URI"
-          echo "Setting output..."
-          echo "::set-output name=image_uri::$IMAGE_URI"
-          echo "Output set using legacy syntax."
-      - name: Show image_uri output
-        run: |
-          echo "Step output is: ${{ steps.export-image-uri.outputs.image_uri }}"
+
 
   deploy:
     runs-on: ubuntu-latest
     needs: [docker]
-    env:
-      DOCKER_IMAGE_URI: ${{ needs.docker.outputs.dck_image_uri }}
     defaults:
       run:
         working-directory: starter/frontend
@@ -129,14 +115,12 @@ jobs:
         uses: imranismail/setup-kustomize@v1
         with:
           kustomize-version: 'v5.2.1'
-      - name: Print all needs context
-        run: echo "${{ toJson(needs) }}"
-      - name: Debug DOCKER_IMAGE_URI
-        run: |
-          echo "DOCKER_IMAGE_URI is '$DOCKER_IMAGE_URI'"
-          echo "Job output from docker job: ${{ needs.docker.outputs.dck_image_uri }}"
+      - name: Log in to Amazon ECR
+        id: login-ecr-extract
+        uses: aws-actions/amazon-ecr-login@v2
       - name: Update image in Kubernetes manifests #flabbergasted button
         run: |
+          $DOCKER_IMAGE_URI=${{ steps.login-ecr-extract.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}
           echo "IMAGE_URI: $DOCKER_IMAGE_URI"
           cd k8s && kustomize edit set image frontend=$DOCKER_IMAGE_URI 
           
