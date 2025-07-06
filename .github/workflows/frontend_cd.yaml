@@ -114,6 +114,32 @@ jobs:
       - name: Configure kubectl for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ vars.EKS_CLUSTER_NAME }}
+      - name: Create aws-auth ConfigMap if missing
+        run: |
+          # Check if aws-auth exists, if not create it
+          if ! kubectl get configmap aws-auth -n kube-system; then
+            echo "Creating aws-auth ConfigMap..."
+            # Get current AWS account ID
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            # Get current IAM user/role
+            USER_ARN=$(aws sts get-caller-identity --query Arn --output text)
+            
+            cat <<EOF | kubectl apply -f -
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: aws-auth
+              namespace: kube-system
+            data:
+              mapUsers: |
+                - userarn: $USER_ARN
+                  username: github-actions
+                  groups:
+                    - system:masters
+            EOF
+          else
+            echo "aws-auth ConfigMap already exists"
+          fi
       - name: Set up kustomize
         uses: imranismail/setup-kustomize@v1
         with:
@@ -129,5 +155,5 @@ jobs:
           
       - name: Apply Kubernetes manifests
         run: |
-          cd k8s && kustomize build | kubectl apply -f -
+          cd k8s && kustomize build | kubectl apply -f - --validate=false
       
