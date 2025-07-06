@@ -126,5 +126,5 @@ jobs:
           
       - name: Apply Kubernetes manifests
         run: |
-          cd k8s && kustomize build | kubectl apply -f -
+          cd k8s && kustomize build | kubectl apply -f ./
       
