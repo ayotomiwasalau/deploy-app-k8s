@@ -120,7 +120,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
       - name: Update image in Kubernetes manifests #flabbergasted button
         run: |
-          $DOCKER_IMAGE_URI=${{ steps.login-ecr-extract.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}
+          DOCKER_IMAGE_URI=${{ steps.login-ecr-extract.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}
           echo "IMAGE_URI: $DOCKER_IMAGE_URI"
           cd k8s && kustomize edit set image frontend=$DOCKER_IMAGE_URI 
           
