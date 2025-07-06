@@ -111,6 +111,9 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ vars.EKS_CLUSTER_NAME }}
       - name: Set up kustomize
         uses: imranismail/setup-kustomize@v1
         with:
@@ -126,5 +129,5 @@ jobs:
           
       - name: Apply Kubernetes manifests
         run: |
-          cd k8s && kustomize build | kubectl apply -f ./
+          cd k8s && kustomize build | kubectl apply -f -
       
