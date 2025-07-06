@@ -98,9 +98,8 @@ jobs:
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ vars.FE_ECR_REPOSITORY }}:${{ github.sha }}"
           echo "IMAGE_URI: $IMAGE_URI"
           echo "Setting output..."
-          echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
-          echo "Output set. Checking..."
-          cat $GITHUB_OUTPUT
+          echo "::set-output name=image_uri::$IMAGE_URI"
+          echo "Output set using legacy syntax."
       - name: Show image_uri output
         run: |
           echo "Step output is: ${{ steps.export-image-uri.outputs.image_uri }}"
